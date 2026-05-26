@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Тестирование API Пользователей</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .content {
+            padding: 30px;
+        }
+
+        .section {
+            margin-bottom: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            border-left: 4px solid #667eea;
+        }
+
+        .section h2 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 1.5em;
+        }
+
+        .endpoint {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+            padding: 15px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .method {
+            padding: 5px 15px;
+            border-radius: 5px;
+            font-weight: bold;
+            font-size: 0.9em;
+            margin-right: 15px;
+            min-width: 80px;
+            text-align: center;
+        }
+
+        .get { background: #61affe; color: white; }
+        .post { background: #49cc90; color: white; }
+        .delete { background: #f93e3e; color: white; }
+
+        .input-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+
+        input, button {
+            padding: 12px 20px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1em;
+            transition: all 0.3s;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        button.danger {
+            background: #f93e3e;
+        }
+
+        .result {
+            background: #2d2d2d;
+            color: #f8f8f2;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 15px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+            overflow-x: auto;
+            max-height: 400px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        .user-card {
+            display: inline-block;
+            background: white;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            min-width: 200px;
+        }
+
+        .user-id {
+            color: #667eea;
+            font-weight: bold;
+            font-size: 1.2em;
+        }
+
+        .status {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 0.85em;
+            margin-top: 10px;
+        }
+
+        .status.success { background: #d4edda; color: #155724; }
+        .status.error { background: #f8d7da; color: #721c24; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚀 API Тестирование</h1>
+            <p>Сервер пользователей - Тестирование всех endpoints</p>
+        </div>
+
+        <div class="content">
+            <div class="section">
+                <h2>📋 Получить всех пользователей</h2>
+                <div class="endpoint">
+                    <span class="method get">GET</span>
+                    <span>/users</span>
+                </div>
+                <button onclick="getAllUsers()">🔍 Получить всех пользователей</button>
+            </div>
+
+            <div class="section">
+                <h2>👤 Получить пользователя по ID</h2>
+                <div class="endpoint">
+                    <span class="method get">GET</span>
+                    <span>/users/:id</span>
+                </div>
+                <div class="input-group">
+                    <input type="number" id="userId" placeholder="Введите ID пользователя" min="1">
+                    <button onclick="getUserById()">🔍 Найти пользователя</button>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>➕ Добавить нового пользователя</h2>
+                <div class="endpoint">
+                    <span class="method post">POST</span>
+                    <span>/users/add</span>
+                </div>
+                <div class="input-group">
+                    <input type="text" id="userName" placeholder="Имя пользователя" required>
+                    <input type="email" id="userEmail" placeholder="Email пользователя" required>
+                    <input type="number" id="userAge" placeholder="Возраст" min="1" max="150">
+                    <button onclick="addUser()">➕ Добавить пользователя</button>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>🗑️ Удалить пользователя</h2>
+                <div class="endpoint">
+                    <span class="method delete">DELETE</span>
+                    <span>/users/:id</span>
+                </div>
+                <div class="input-group">
+                    <input type="number" id="deleteUserId" placeholder="Введите ID для удаления" min="1">
+                    <button class="danger" onclick="deleteUser()">🗑️ Удалить пользователя</button>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>📊 Результаты</h2>
+                <div id="result" class="result">
+                    Нажмите на любую кнопку, чтобы увидеть результат запроса...
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = 'http://82.146.63.187:3000';
+
+        function displayResult(data, isError = false) {
+            const resultDiv = document.getElementById('result');
+            const timestamp = new Date().toLocaleTimeString();
+            
+            let html = `<div style="margin-bottom: 10px; color: #888;">[${timestamp}]</div>`;
+            
+            if (isError) {
+                html += `<span class="status error">❌ Ошибка</span><br><br>`;
+            } else {
+                html += `<span class="status success">✅ Успешно</span><br><br>`;
+            }
+            
+            html += `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+            resultDiv.innerHTML = html;
+        }
+
+        async function getAllUsers() {
+            try {
+                const response = await fetch(`${API_URL}/users`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    let html = `<h3>📋 Все пользователи (${data.data.length})</h3>`;
+                    data.data.forEach(user => {
+                        html += `
+                            <div class="user-card">
+                                <div class="user-id">#${user.id}</div>
+                                <strong>${user.name}</strong><br>
+                                📧 ${user.email}<br>
+                                🎂 ${user.age || 'Не указан'} лет
+                            </div>
+                        `;
+                    });
+                    document.getElementById('result').innerHTML = html;
+                } else {
+                    displayResult(data, true);
+                }
+            } catch (error) {
+                displayResult({ error: error.message }, true);
+            }
+        }
+
+        async function getUserById() {
+            const userId = document.getElementById('userId').value;
+            
+            if (!userId) {
+                displayResult({ error: 'Введите ID пользователя' }, true);
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_URL}/users/${userId}`);
+                const data = await response.json();
+                displayResult(data, !data.success);
+            } catch (error) {
+                displayResult({ error: error.message }, true);
+            }
+        }
+
+        async function addUser() {
+            const name = document.getElementById('userName').value;
+            const email = document.getElementById('userEmail').value;
+            const age = document.getElementById('userAge').value;
+
+            if (!name || !email) {
+                displayResult({ error: 'Имя и email обязательны для заполнения' }, true);
+                return;
+            }
+
+            const userData = {
+                name: name,
+                email: email,
+                age: age ? parseInt(age) : null
+            };
+
+            try {
+                const response = await fetch(`${API_URL}/users/add`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(userData)
+                });
+                
+                const data = await response.json();
+                displayResult(data, !data.success);
+                
+                if (data.success) {
+                    document.getElementById('userName').value = '';
+                    document.getElementById('userEmail').value = '';
+                    document.getElementById('userAge').value = '';
+
+                    setTimeout(getAllUsers, 1000);
+                }
+            } catch (error) {
+                displayResult({ error: error.message }, true);
+            }
+        }
+
+        async function deleteUser() {
+            const userId = document.getElementById('deleteUserId').value;
+            
+            if (!userId) {
+                displayResult({ error: 'Введите ID пользователя для удаления' }, true);
+                return;
+            }
+
+            if (!confirm(`Вы уверены, что хотите удалить пользователя с ID ${userId}?`)) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_URL}/users/${userId}`, {
+                    method: 'DELETE'
+                });
+                
+                const data = await response.json();
+                displayResult(data, !data.success);
+                
+                if (data.success) {
+                    document.getElementById('deleteUserId').value = '';
+                    setTimeout(getAllUsers, 1000);
+                }
+            } catch (error) {
+                displayResult({ error: error.message }, true);
+            }
+        }
+
+        window.addEventListener('load', () => {
+            getAllUsers();
+        });
+
+        document.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                const activeElement = document.activeElement;
+                if (activeElement.id === 'userId') {
+                    getUserById();
+                } else if (activeElement.id === 'deleteUserId') {
+                    deleteUser();
+                }
+            }
+        });
+    </script>
+</body>
+</html>
