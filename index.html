@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>API Users Test</title>
+</head>
+<body>
+    <h1>Users API Test</h1>
+    
+    <h2>All Users</h2>
+    <button onclick="getAllUsers()">Refresh Users</button>
+    <div id="usersList"></div>
+    
+    <h2>Add User</h2>
+    <input type="text" id="name" placeholder="Name">
+    <input type="email" id="email" placeholder="Email">
+    <input type="number" id="age" placeholder="Age">
+    <button onclick="addUser()">Add User</button>
+    
+    <h2>Delete User</h2>
+    <input type="number" id="deleteId" placeholder="User ID">
+    <button onclick="deleteUser()">Delete User</button>
+    
+    <h2>Get User by ID</h2>
+    <input type="number" id="userId" placeholder="User ID">
+    <button onclick="getUserById()">Get User</button>
+    
+    <h3>Response:</h3>
+    <pre id="response"></pre>
+
+    <script>
+        const API = 'http://82.146.63.187:3000';
+
+        async function getAllUsers() {
+            const res = await fetch(`${API}/users`);
+            const data = await res.json();
+            document.getElementById('usersList').innerHTML = data.data.map(u => 
+                `<p>ID: ${u.id} | Name: ${u.name} | Email: ${u.email} | Age: ${u.age || 'N/A'}</p>`
+            ).join('');
+            document.getElementById('response').textContent = JSON.stringify(data, null, 2);
+        }
+
+        async function addUser() {
+            const name = document.getElementById('name').value;
+            const email = document.getElementById('email').value;
+            const age = document.getElementById('age').value;
+            
+            const res = await fetch(`${API}/users/add`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name, email, age: age || null })
+            });
+            const data = await res.json();
+            document.getElementById('response').textContent = JSON.stringify(data, null, 2);
+            if (data.success) getAllUsers();
+        }
+
+        async function deleteUser() {
+            const id = document.getElementById('deleteId').value;
+            const res = await fetch(`${API}/users/${id}`, { method: 'DELETE' });
+            const data = await res.json();
+            document.getElementById('response').textContent = JSON.stringify(data, null, 2);
+            if (data.success) getAllUsers();
+        }
+
+        async function getUserById() {
+            const id = document.getElementById('userId').value;
+            const res = await fetch(`${API}/users/${id}`);
+            const data = await res.json();
+            document.getElementById('response').textContent = JSON.stringify(data, null, 2);
+        }
+
+        getAllUsers();
+    </script>
+</body>
+</html>

@@ -1,10 +1,8 @@
 const http = require('http');
 const url = require('url');
 
-// Порт сервера
 const PORT = 3000;
 
-// Хранилище пользователей (в памяти)
 let users = [
     { id: 1, name: "Иван Иванов", email: "ivan@example.com", age: 25 },
     { id: 2, name: "Мария Петрова", email: "maria@example.com", age: 30 },
@@ -13,7 +11,6 @@ let users = [
 
 let nextId = 4;
 
-// Функция для парсинга JSON тела запроса
 function parseBody(req) {
     return new Promise((resolve, reject) => {
         let body = '';
@@ -31,14 +28,11 @@ function parseBody(req) {
     });
 }
 
-// Создание сервера
 const server = http.createServer(async (req, res) => {
-    // Настройка CORS для доступа с HTML страницы
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, DELETE, OPTIONS');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
-    // Обработка preflight запросов
     if (req.method === 'OPTIONS') {
         res.writeHead(200);
         res.end();
@@ -48,19 +42,16 @@ const server = http.createServer(async (req, res) => {
     const parsedUrl = url.parse(req.url, true);
     const path = parsedUrl.pathname;
     
-    console.log(`[${new Date().toISOString()}] ${req.method} ${path}`); // Логирование запросов
+    console.log(`[${new Date().toISOString()}] ${req.method} ${path}`);
 
     try {
-        // Удаляем завершающий слеш если есть
         const cleanPath = path.replace(/\/$/, '');
         
-        // GET /users - получить всех пользователей
         if (req.method === 'GET' && cleanPath === '/users') {
             console.log('Getting all users');
             res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
             res.end(JSON.stringify({ success: true, data: users }, null, 2));
         }
-        // GET /users/:id - получить конкретного пользователя
         else if (req.method === 'GET' && cleanPath.match(/^\/users\/(\d+)$/)) {
             const userId = parseInt(cleanPath.split('/')[2]);
             console.log(`Getting user with ID: ${userId}`);
@@ -79,7 +70,6 @@ const server = http.createServer(async (req, res) => {
                 }, null, 2));
             }
         }
-        // POST /users/add - добавить нового пользователя
         else if (req.method === 'POST' && cleanPath === '/users/add') {
             console.log('Adding new user');
             const body = await parseBody(req);
@@ -112,7 +102,6 @@ const server = http.createServer(async (req, res) => {
                 totalUsers: users.length
             }, null, 2));
         }
-        // DELETE /users/:id - удалить пользователя
         else if (req.method === 'DELETE' && cleanPath.match(/^\/users\/(\d+)$/)) {
             const userId = parseInt(cleanPath.split('/')[2]);
             console.log(`Deleting user with ID: ${userId}`);
@@ -139,7 +128,6 @@ const server = http.createServer(async (req, res) => {
                 }, null, 2));
             }
         }
-        // Корневой путь - информация о API
         else if (req.method === 'GET' && cleanPath === '') {
             res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
             res.end(JSON.stringify({
@@ -181,15 +169,15 @@ const server = http.createServer(async (req, res) => {
 
 server.listen(PORT, '0.0.0.0', () => {
     console.log('='.repeat(60));
-    console.log(`🚀 Сервер запущен на http://82.146.63.187:${PORT}`);
+    console.log(`Сервер запущен на http://82.146.63.187:${PORT}`);
     console.log('='.repeat(60));
-    console.log('📋 Доступные endpoints:');
+    console.log('Доступные endpoints:');
     console.log(`  GET    http://82.146.63.187:${PORT}/users          - Все пользователи`);
     console.log(`  GET    http://82.146.63.187:${PORT}/users/1        - Пользователь по ID`);
     console.log(`  POST   http://82.146.63.187:${PORT}/users/add      - Добавить пользователя`);
     console.log(`  DELETE http://82.146.63.187:${PORT}/users/1       - Удалить пользователя`);
     console.log('='.repeat(60));
-    console.log('📊 Начальные данные:');
+    console.log('Начальные данные:');
     users.forEach(user => {
         console.log(`  ID: ${user.id}, Имя: ${user.name}, Email: ${user.email}`);
     });
